@@ -1,6 +1,10 @@
-console.log('I am just regular js.')
+(() => {
+  // Mount our Elm app.
+  const app = Elm.Main.init({
+    node: document.getElementById('elm-app'),
+  })
 
-// Mount our Elm app.
-const app = Elm.Main.init({
-  node: document.getElementById('elm'),
-})
+  document.getElementById('a').addEventListener('click', () => {
+    app.ports.fromJs.send(12345)
+  })
+})()
