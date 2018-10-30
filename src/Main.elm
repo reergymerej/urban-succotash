@@ -2,23 +2,27 @@ import Browser
 import Html
 
 main =
-  Browser.sandbox { init = init, update = update, view = view }
+  Browser.element { init = init
+  , subscriptions = subscriptions
+  , update = update
+  , view = view
+  }
 
 -- MODEL
 
 type alias Model = Int
 
-init : Model
-init = 999
+init : () -> (Model, Cmd Msg)
+init _ = (999, Cmd.none)
 
 -- UPDATE
 
-type Msg = Reset
+type Msg = Whatevs
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
   case msg of
-    Reset -> model
+    Whatevs -> (model, Cmd.none)
 
 
 -- VIEW
@@ -26,3 +30,7 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
   Html.div [] [Html.text "hello"]
+
+
+subscriptions : Model -> Sub msg
+subscriptions model = Sub.none
