@@ -1,10 +1,15 @@
+import Browser
 import Html
 
+main =
+  Browser.sandbox { init = init, update = update, view = view }
 
 -- MODEL
 
 type alias Model = Int
 
+init : Model
+init = 999
 
 -- UPDATE
 
