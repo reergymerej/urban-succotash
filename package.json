@@ -1,0 +1,15 @@
+{
+  "name": "urban-succotash",
+  "version": "1.0.0",
+  "scripts": {
+    "start": "python -m SimpleHTTPServer",
+    "build": "node_modules/.bin/elm make src/Main.elm --output=bin/elm.js"
+  },
+  "main": "index.js",
+  "repository": "git@github.com:reergymerej/urban-succotash.git",
+  "author": "Jeremy Greer <jex.grizzle@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "elm": "0.19"
+  }
+}
