@@ -4,6 +4,7 @@ port module Main exposing (..)
 
 import Browser
 import Html
+import Html.Events
 import Json.Decode as D
 import Json.Encode as E
 
@@ -22,12 +23,18 @@ main =
 
 
 type alias Model =
-    Int
+    { anInt : Int
+    , counter : Int
+    }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( 999, Cmd.none )
+    ( { anInt = 0
+      , counter = 0
+      }
+    , Cmd.none
+    )
 
 
 
@@ -35,8 +42,8 @@ init _ =
 
 
 type Msg
-    = Whatevs
-    | DataFromJS E.Value
+    = DataFromJS E.Value
+    | SendToJSClick
 
 
 decodeValueFromJS : E.Value -> Int
@@ -53,13 +60,16 @@ decodeValueFromJS encodedValue =
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        Whatevs ->
-            ( model, Cmd.none )
-
         DataFromJS encodedValue ->
-            ( decodeValueFromJS encodedValue
+            ( { model
+                | anInt = decodeValueFromJS encodedValue
+              }
             , Cmd.none
             )
+
+        SendToJSClick ->
+          ( model
+          , Cmd.jk
 
 
 
@@ -69,7 +79,8 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
     Html.div []
-        [ Html.div [] [ Html.text ("model: " ++ String.fromInt model) ]
+        [ Html.div [] [ Html.text ("anInt: " ++ String.fromInt model.anInt) ]
+        , Html.button [ Html.Events.onClick SendToJSClick ] [ Html.text "Send Int to JS" ]
         ]
 
 
