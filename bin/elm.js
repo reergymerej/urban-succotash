@@ -5334,14 +5334,39 @@ var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(999, elm$core$Platform$Cmd$none);
 };
-var elm$core$Platform$Sub$batch = _Platform_batch;
-var elm$core$Platform$Sub$none = elm$core$Platform$Sub$batch(_List_Nil);
+var author$project$Main$DataFromJS = function (a) {
+	return {$: 'DataFromJS', a: a};
+};
+var elm$json$Json$Decode$value = _Json_decodeValue;
+var author$project$Main$fromJs = _Platform_incomingPort('fromJs', elm$json$Json$Decode$value);
 var author$project$Main$subscriptions = function (model) {
-	return elm$core$Platform$Sub$none;
+	return author$project$Main$fromJs(author$project$Main$DataFromJS);
+};
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
+var elm$json$Json$Decode$decodeValue = _Json_run;
+var elm$json$Json$Decode$int = _Json_decodeInt;
+var author$project$Main$decodeValueFromJS = function (encodedValue) {
+	var _n0 = A2(elm$json$Json$Decode$decodeValue, elm$json$Json$Decode$int, encodedValue);
+	if (_n0.$ === 'Err') {
+		var err = _n0.a;
+		return -1;
+	} else {
+		var decoded = _n0.a;
+		return decoded;
+	}
 };
 var author$project$Main$update = F2(
 	function (msg, model) {
-		return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+		if (msg.$ === 'Whatevs') {
+			return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+		} else {
+			var encodedValue = msg.a;
+			return _Utils_Tuple2(
+				author$project$Main$decodeValueFromJS(encodedValue),
+				elm$core$Platform$Cmd$none);
+		}
 	});
 var elm$core$Basics$identity = function (x) {
 	return x;
@@ -5370,7 +5395,14 @@ var author$project$Main$view = function (model) {
 		_List_Nil,
 		_List_fromArray(
 			[
-				elm$html$Html$text('hello')
+				A2(
+				elm$html$Html$div,
+				_List_Nil,
+				_List_fromArray(
+					[
+						elm$html$Html$text(
+						'model: ' + elm$core$String$fromInt(model))
+					]))
 			]));
 };
 var elm$browser$Browser$External = function (a) {
@@ -6305,9 +6337,6 @@ var elm$core$String$left = F2(
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
 var elm$core$String$length = _String_length;
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
 var elm$core$String$right = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(
@@ -7756,7 +7785,6 @@ var elm$browser$Debugger$Metadata$isPortable = function (_n0) {
 			A2(elm$browser$Debugger$Metadata$Error, types.message, problems));
 	}
 };
-var elm$json$Json$Decode$decodeValue = _Json_run;
 var elm$browser$Debugger$Metadata$decode = function (value) {
 	var _n0 = A2(elm$json$Json$Decode$decodeValue, elm$browser$Debugger$Metadata$decoder, value);
 	if (_n0.$ === 'Err') {
@@ -8910,7 +8938,6 @@ var elm$browser$Debugger$Main$download = F2(
 			A2(_Debugger_download, historyLength, json));
 	});
 var elm$browser$Debugger$History$jsToElm = _Debugger_unsafeCoerce;
-var elm$json$Json$Decode$value = _Json_decodeValue;
 var elm$browser$Debugger$History$decoder = F2(
 	function (initialModel, update) {
 		var addMessage = F2(
@@ -9635,4 +9662,4 @@ var elm$browser$Browser$element = _Browser_element;
 var author$project$Main$main = elm$browser$Browser$element(
 	{init: author$project$Main$init, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{},"unions":{"Main.Msg":{"args":[],"tags":{"Whatevs":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{},"unions":{"Main.Msg":{"args":[],"tags":{"Whatevs":[],"DataFromJS":["Json.Encode.Value"]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
