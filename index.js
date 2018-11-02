@@ -5,6 +5,6 @@
   })
 
   document.getElementById('a').addEventListener('click', () => {
-    app.ports.fromJs.send(12345)
+    app.ports.fromJs.send(Date.now())
   })
 })()
