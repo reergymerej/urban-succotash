@@ -68,8 +68,10 @@ update msg model =
             )
 
         SendToJSClick ->
-            ( model
-            , toJs (E.int 42)
+            ( { model
+                | counter = model.counter + 1
+              }
+            , toJs (E.int model.counter)
             )
 
 
