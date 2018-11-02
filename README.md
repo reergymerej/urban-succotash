@@ -3,8 +3,13 @@
 yarn
 ```
 
+## build
+```
+yarn build
+```
+
 ## run
 ```
-python -m SimpleHTTPServer
+yarn start
 # open http://localhost:8000
 ```
