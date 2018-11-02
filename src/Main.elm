@@ -1,4 +1,4 @@
-port module Main exposing (..)
+port module Main exposing (Model, Msg(..), decodeValueFromJS, fromJs, init, main, subscriptions, update, view)
 
 -- I am needed to send data to JS.
 
@@ -68,8 +68,9 @@ update msg model =
             )
 
         SendToJSClick ->
-          ( model
-          , Cmd.jk
+            ( model
+            , toJs (E.int 42)
+            )
 
 
 
@@ -85,10 +86,17 @@ view model =
 
 
 
--- outgoing
+-- incoming
 
 
 port fromJs : (E.Value -> msg) -> Sub msg
+
+
+
+-- outgoing
+
+
+port toJs : E.Value -> Cmd msg
 
 
 

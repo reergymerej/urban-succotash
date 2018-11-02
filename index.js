@@ -7,4 +7,9 @@
   document.getElementById('a').addEventListener('click', () => {
     app.ports.fromJs.send(Date.now())
   })
+
+  app.ports.toJs.subscribe(x => {
+    console.log(x)
+    document.getElementById('from-elm').innerText = x
+  })
 })()
