@@ -4,8 +4,9 @@
     node: document.getElementById('elm-app'),
   })
 
+  let count = 0
   document.getElementById('a').addEventListener('click', () => {
-    app.ports.fromJs.send(Date.now())
+    app.ports.fromJs.send(++count)
   })
 
   app.ports.toJs.subscribe(x => {

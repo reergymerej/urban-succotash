@@ -1,11 +1,20 @@
 <html>
   <body>
     <div id="js-app">
-      <button id="a">Send an Int to Elm</button>
-      <div id="from-elm"></div>
+      <fieldset>
+        <legend>JS Stuff</legend>
+        <button id="a">Send an Int to Elm</button>
+        <div>
+          <span>from Elm: </span>
+          <span id="from-elm"></span>
+        </div>
+      </fieldset>
     </div>
-    <div id="elm-app"></div>
-    <script src="bin/elm.js"></script>
+    <fieldset>
+      <legend>Elm Stuff</legend>
+      <div id="elm-app"></div>
+    </fieldset>
+    <script src="elm.js"></script>
     <script src="index.js"></script>
   </body>
 </html>

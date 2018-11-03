@@ -1,7 +1,5 @@
 port module Main exposing (Model, Msg(..), decodeValueFromJS, fromJs, init, main, subscriptions, update, view)
 
--- I am needed to send data to JS.
-
 import Browser
 import Html
 import Html.Events
@@ -18,27 +16,19 @@ main =
         }
 
 
-
--- MODEL
-
-
 type alias Model =
-    { anInt : Int
+    { valueFromJs : Int
     , counter : Int
     }
 
 
 init : () -> ( Model, Cmd Msg )
 init _ =
-    ( { anInt = 0
+    ( { valueFromJs = 0
       , counter = 0
       }
     , Cmd.none
     )
-
-
-
--- UPDATE
 
 
 type Msg
@@ -62,7 +52,7 @@ update msg model =
     case msg of
         DataFromJS encodedValue ->
             ( { model
-                | anInt = decodeValueFromJS encodedValue
+                | valueFromJs = decodeValueFromJS encodedValue
               }
             , Cmd.none
             )
@@ -71,7 +61,7 @@ update msg model =
             ( { model
                 | counter = model.counter + 1
               }
-            , toJs (E.int model.counter)
+            , toJs (E.int (model.counter + 1))
             )
 
 
@@ -82,8 +72,8 @@ update msg model =
 view : Model -> Html.Html Msg
 view model =
     Html.div []
-        [ Html.div [] [ Html.text ("anInt: " ++ String.fromInt model.anInt) ]
-        , Html.button [ Html.Events.onClick SendToJSClick ] [ Html.text "Send Int to JS" ]
+        [ Html.button [ Html.Events.onClick SendToJSClick ] [ Html.text "Send an Int to JS" ]
+        , Html.div [] [ Html.text ("from JS: " ++ String.fromInt model.valueFromJs) ]
         ]
 
 

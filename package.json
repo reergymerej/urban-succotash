@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "scripts": {
     "start": "python -m SimpleHTTPServer",
-    "build": "node_modules/.bin/elm make src/Main.elm --output bin/elm.js --debug"
+    "build": "elm make Main.elm --output elm.js --debug"
   },
   "main": "index.js",
   "repository": "git@github.com:reergymerej/urban-succotash.git",
