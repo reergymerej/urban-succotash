@@ -1,4 +1,4 @@
-port module Main exposing (Model, Msg(..), fromJs, init, main, subscriptions, update, view)
+port module Main exposing (Model, Msg(..), init, main, portIntoElm, subscriptions, update, view)
 
 import Browser
 import Html
@@ -7,13 +7,19 @@ import Json.Decode
 import Json.Encode
 
 
-main =
-    Browser.element
-        { init = init
-        , subscriptions = subscriptions
-        , update = update
-        , view = view
-        }
+
+-- init
+
+
+type alias Model =
+    { valueFromJs : Int
+    , valueForJs : Int
+    }
+
+
+type Msg
+    = GotValueFromJs Json.Encode.Value
+    | SendDataToJs
 
 
 init : () -> ( Model, Cmd Msg )
@@ -25,26 +31,36 @@ init _ =
     )
 
 
+
+-- subscriptions
+
+
+port portIntoElm : (Json.Encode.Value -> msg) -> Sub msg
+
+
 subscriptions : Model -> Sub Msg
 subscriptions model =
-    fromJs DataFromJS
+    portIntoElm GotValueFromJs
+
+
+
+-- update
+
+
+port portOutOfElm : Json.Encode.Value -> Cmd msg
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        SendToJSClick ->
-            let
-                newValue =
-                    model.valueForJs + 1
-            in
+        SendDataToJs ->
             ( { model
-                | valueForJs = newValue
+                | valueForJs = model.valueForJs + 1
               }
-            , toJs (Json.Encode.int newValue)
+            , portOutOfElm (Json.Encode.int (model.valueForJs + 1))
             )
 
-        DataFromJS encodedValue ->
+        GotValueFromJs encodedValue ->
             case Json.Decode.decodeValue Json.Decode.int encodedValue of
                 Err err ->
                     ( model, Cmd.none )
@@ -57,26 +73,22 @@ update msg model =
                     )
 
 
+
+-- view
+
+
 view : Model -> Html.Html Msg
 view model =
     Html.div []
-        [ Html.button [ Html.Events.onClick SendToJSClick ] [ Html.text "Send an Int to JS" ]
-        , Html.div [] [ Html.text ("from JS: " ++ String.fromInt model.valueFromJs) ]
+        [ Html.button [ Html.Events.onClick SendDataToJs ] [ Html.text "Send an Int to JS" ]
+        , Html.div [] [ Html.text (String.fromInt model.valueFromJs) ]
         ]
 
 
-type alias Model =
-    { valueFromJs : Int
-    , valueForJs : Int
-    }
-
-
-type Msg
-    = DataFromJS Json.Encode.Value
-    | SendToJSClick
-
-
-port fromJs : (Json.Encode.Value -> msg) -> Sub msg
-
-
-port toJs : Json.Encode.Value -> Cmd msg
+main =
+    Browser.element
+        { init = init
+        , subscriptions = subscriptions
+        , update = update
+        , view = view
+        }

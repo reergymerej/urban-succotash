@@ -5336,31 +5336,30 @@ var author$project$Main$init = function (_n0) {
 		{valueForJs: 0, valueFromJs: 0},
 		elm$core$Platform$Cmd$none);
 };
-var author$project$Main$DataFromJS = function (a) {
-	return {$: 'DataFromJS', a: a};
+var author$project$Main$NewValueFromJs = function (a) {
+	return {$: 'NewValueFromJs', a: a};
 };
 var elm$json$Json$Decode$value = _Json_decodeValue;
-var author$project$Main$fromJs = _Platform_incomingPort('fromJs', elm$json$Json$Decode$value);
+var author$project$Main$portIntoElm = _Platform_incomingPort('portIntoElm', elm$json$Json$Decode$value);
 var author$project$Main$subscriptions = function (model) {
-	return author$project$Main$fromJs(author$project$Main$DataFromJS);
+	return author$project$Main$portIntoElm(author$project$Main$NewValueFromJs);
 };
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
-var author$project$Main$toJs = _Platform_outgoingPort('toJs', elm$core$Basics$identity);
+var author$project$Main$portOutOfElm = _Platform_outgoingPort('portOutOfElm', elm$core$Basics$identity);
 var elm$json$Json$Decode$decodeValue = _Json_run;
 var elm$json$Json$Decode$int = _Json_decodeInt;
 var elm$json$Json$Encode$int = _Json_wrap;
 var author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'SendToJSClick') {
-			var newValue = model.valueForJs + 1;
+		if (msg.$ === 'SendDataToJs') {
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
-					{valueForJs: newValue}),
-				author$project$Main$toJs(
-					elm$json$Json$Encode$int(newValue)));
+					{valueForJs: model.valueForJs + 1}),
+				author$project$Main$portOutOfElm(
+					elm$json$Json$Encode$int(model.valueForJs + 1)));
 		} else {
 			var encodedValue = msg.a;
 			var _n1 = A2(elm$json$Json$Decode$decodeValue, elm$json$Json$Decode$int, encodedValue);
@@ -5377,7 +5376,7 @@ var author$project$Main$update = F2(
 			}
 		}
 	});
-var author$project$Main$SendToJSClick = {$: 'SendToJSClick'};
+var author$project$Main$SendDataToJs = {$: 'SendDataToJs'};
 var elm$json$Json$Decode$map = _Json_map1;
 var elm$json$Json$Decode$map2 = _Json_map2;
 var elm$json$Json$Decode$succeed = _Json_succeed;
@@ -5424,7 +5423,7 @@ var author$project$Main$view = function (model) {
 				elm$html$Html$button,
 				_List_fromArray(
 					[
-						elm$html$Html$Events$onClick(author$project$Main$SendToJSClick)
+						elm$html$Html$Events$onClick(author$project$Main$SendDataToJs)
 					]),
 				_List_fromArray(
 					[
@@ -5436,7 +5435,7 @@ var author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						elm$html$Html$text(
-						'from JS: ' + elm$core$String$fromInt(model.valueFromJs))
+						elm$core$String$fromInt(model.valueFromJs))
 					]))
 			]));
 };
@@ -9682,4 +9681,4 @@ var elm$browser$Browser$element = _Browser_element;
 var author$project$Main$main = elm$browser$Browser$element(
 	{init: author$project$Main$init, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{},"unions":{"Main.Msg":{"args":[],"tags":{"DataFromJS":["Json.Encode.Value"],"SendToJSClick":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{},"unions":{"Main.Msg":{"args":[],"tags":{"NewValueFromJs":["Json.Encode.Value"],"SendDataToJs":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));

@@ -6,10 +6,10 @@
 
   let count = 0
   document.getElementById('a').addEventListener('click', () => {
-    app.ports.fromJs.send(++count)
+    app.ports.portIntoElm.send(++count)
   })
 
-  app.ports.toJs.subscribe(x => {
+  app.ports.portOutOfElm.subscribe(x => {
     console.log(x)
     document.getElementById('from-elm').innerText = x
   })
