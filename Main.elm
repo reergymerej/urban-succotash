@@ -1,10 +1,10 @@
-port module Main exposing (Model, Msg(..), decodeValueFromJS, fromJs, init, main, subscriptions, update, view)
+port module Main exposing (Model, Msg(..), fromJs, init, main, subscriptions, update, view)
 
 import Browser
 import Html
 import Html.Events
-import Json.Decode as D
-import Json.Encode as E
+import Json.Decode
+import Json.Encode
 
 
 main =
@@ -16,57 +16,45 @@ main =
         }
 
 
-type alias Model =
-    { valueFromJs : Int
-    , counter : Int
-    }
-
-
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { valueFromJs = 0
-      , counter = 0
+      , valueForJs = 0
       }
     , Cmd.none
     )
 
 
-type Msg
-    = DataFromJS E.Value
-    | SendToJSClick
-
-
-decodeValueFromJS : E.Value -> Int
-decodeValueFromJS encodedValue =
-    -- This is certainly a stupid way to handle this.
-    case D.decodeValue D.int encodedValue of
-        Err err ->
-            -1
-
-        Ok decoded ->
-            decoded
+subscriptions : Model -> Sub Msg
+subscriptions model =
+    fromJs DataFromJS
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
-        DataFromJS encodedValue ->
-            ( { model
-                | valueFromJs = decodeValueFromJS encodedValue
-              }
-            , Cmd.none
-            )
-
         SendToJSClick ->
+            let
+                newValue =
+                    model.valueForJs + 1
+            in
             ( { model
-                | counter = model.counter + 1
+                | valueForJs = newValue
               }
-            , toJs (E.int (model.counter + 1))
+            , toJs (Json.Encode.int newValue)
             )
 
+        DataFromJS encodedValue ->
+            case Json.Decode.decodeValue Json.Decode.int encodedValue of
+                Err err ->
+                    ( model, Cmd.none )
 
-
--- VIEW
+                Ok decoded ->
+                    ( { model
+                        | valueFromJs = decoded
+                      }
+                    , Cmd.none
+                    )
 
 
 view : Model -> Html.Html Msg
@@ -77,24 +65,18 @@ view model =
         ]
 
 
-
--- incoming
-
-
-port fromJs : (E.Value -> msg) -> Sub msg
-
+type alias Model =
+    { valueFromJs : Int
+    , valueForJs : Int
+    }
 
 
--- outgoing
+type Msg
+    = DataFromJS Json.Encode.Value
+    | SendToJSClick
 
 
-port toJs : E.Value -> Cmd msg
+port fromJs : (Json.Encode.Value -> msg) -> Sub msg
 
 
-
--- SUBSCRIPTIONS
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    fromJs DataFromJS
+port toJs : Json.Encode.Value -> Cmd msg

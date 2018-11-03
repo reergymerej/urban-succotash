@@ -5333,7 +5333,7 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{counter: 0, valueFromJs: 0},
+		{valueForJs: 0, valueFromJs: 0},
 		elm$core$Platform$Cmd$none);
 };
 var author$project$Main$DataFromJS = function (a) {
@@ -5344,44 +5344,37 @@ var author$project$Main$fromJs = _Platform_incomingPort('fromJs', elm$json$Json$
 var author$project$Main$subscriptions = function (model) {
 	return author$project$Main$fromJs(author$project$Main$DataFromJS);
 };
-var elm$core$Basics$negate = function (n) {
-	return -n;
-};
-var elm$json$Json$Decode$decodeValue = _Json_run;
-var elm$json$Json$Decode$int = _Json_decodeInt;
-var author$project$Main$decodeValueFromJS = function (encodedValue) {
-	var _n0 = A2(elm$json$Json$Decode$decodeValue, elm$json$Json$Decode$int, encodedValue);
-	if (_n0.$ === 'Err') {
-		var err = _n0.a;
-		return -1;
-	} else {
-		var decoded = _n0.a;
-		return decoded;
-	}
-};
 var elm$core$Basics$identity = function (x) {
 	return x;
 };
 var author$project$Main$toJs = _Platform_outgoingPort('toJs', elm$core$Basics$identity);
+var elm$json$Json$Decode$decodeValue = _Json_run;
+var elm$json$Json$Decode$int = _Json_decodeInt;
 var elm$json$Json$Encode$int = _Json_wrap;
 var author$project$Main$update = F2(
 	function (msg, model) {
-		if (msg.$ === 'DataFromJS') {
-			var encodedValue = msg.a;
+		if (msg.$ === 'SendToJSClick') {
+			var newValue = model.valueForJs + 1;
 			return _Utils_Tuple2(
 				_Utils_update(
 					model,
-					{
-						valueFromJs: author$project$Main$decodeValueFromJS(encodedValue)
-					}),
-				elm$core$Platform$Cmd$none);
-		} else {
-			return _Utils_Tuple2(
-				_Utils_update(
-					model,
-					{counter: model.counter + 1}),
+					{valueForJs: newValue}),
 				author$project$Main$toJs(
-					elm$json$Json$Encode$int(model.counter + 1)));
+					elm$json$Json$Encode$int(newValue)));
+		} else {
+			var encodedValue = msg.a;
+			var _n1 = A2(elm$json$Json$Decode$decodeValue, elm$json$Json$Decode$int, encodedValue);
+			if (_n1.$ === 'Err') {
+				var err = _n1.a;
+				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+			} else {
+				var decoded = _n1.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{valueFromJs: decoded}),
+					elm$core$Platform$Cmd$none);
+			}
 		}
 	});
 var author$project$Main$SendToJSClick = {$: 'SendToJSClick'};
@@ -6361,6 +6354,9 @@ var elm$core$String$left = F2(
 		return (n < 1) ? '' : A3(elm$core$String$slice, 0, n, string);
 	});
 var elm$core$String$length = _String_length;
+var elm$core$Basics$negate = function (n) {
+	return -n;
+};
 var elm$core$String$right = F2(
 	function (n, string) {
 		return (n < 1) ? '' : A3(
