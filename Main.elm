@@ -13,6 +13,7 @@ import Json.Encode
 
 type alias Model =
     { valueFromJs : Int
+    , decodeError : Maybe String
     , valueForJs : Int
     }
 
@@ -25,6 +26,7 @@ type Msg
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { valueFromJs = 0
+      , decodeError = Nothing
       , valueForJs = 0
       }
     , Cmd.none
@@ -63,7 +65,11 @@ update msg model =
         GotValueFromJs encodedValue ->
             case Json.Decode.decodeValue Json.Decode.int encodedValue of
                 Err err ->
-                    ( model, Cmd.none )
+                    ( { model
+                        | decodeError = Maybe.Just (Json.Decode.errorToString err)
+                      }
+                    , Cmd.none
+                    )
 
                 Ok decoded ->
                     ( { model
@@ -77,11 +83,22 @@ update msg model =
 -- view
 
 
+decodeErrorView : Maybe String -> Html.Html Msg
+decodeErrorView maybeDecodeError =
+    case maybeDecodeError of
+        Nothing ->
+            Html.div [] []
+
+        Just decodeErrorString ->
+            Html.div [] [ Html.text decodeErrorString ]
+
+
 view : Model -> Html.Html Msg
 view model =
     Html.div []
         [ Html.button [ Html.Events.onClick SendDataToJs ] [ Html.text "Send an Int to JS" ]
         , Html.div [] [ Html.text (String.fromInt model.valueFromJs) ]
+        , decodeErrorView model.decodeError
         ]
 
 

@@ -6,7 +6,7 @@
 
   let count = 0
   document.getElementById('a').addEventListener('click', () => {
-    app.ports.portIntoElm.send(++count)
+    app.ports.portIntoElm.send('This is not an int. :(')
   })
 
   app.ports.portOutOfElm.subscribe(x => {

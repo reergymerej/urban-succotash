@@ -4854,6 +4854,7 @@ function _Browser_load(url)
 		}
 	}));
 }
+var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Basics$False = {$: 'False'};
 var elm$core$Basics$True = {$: 'True'};
 var elm$core$Result$isOk = function (result) {
@@ -5117,7 +5118,6 @@ var elm$core$Array$initialize = F2(
 var elm$core$Maybe$Just = function (a) {
 	return {$: 'Just', a: a};
 };
-var elm$core$Maybe$Nothing = {$: 'Nothing'};
 var elm$core$Result$Err = function (a) {
 	return {$: 'Err', a: a};
 };
@@ -5333,16 +5333,16 @@ var elm$core$Platform$Cmd$batch = _Platform_batch;
 var elm$core$Platform$Cmd$none = elm$core$Platform$Cmd$batch(_List_Nil);
 var author$project$Main$init = function (_n0) {
 	return _Utils_Tuple2(
-		{valueForJs: 0, valueFromJs: 0},
+		{decodeError: elm$core$Maybe$Nothing, valueForJs: 0, valueFromJs: 0},
 		elm$core$Platform$Cmd$none);
 };
-var author$project$Main$NewValueFromJs = function (a) {
-	return {$: 'NewValueFromJs', a: a};
+var author$project$Main$GotValueFromJs = function (a) {
+	return {$: 'GotValueFromJs', a: a};
 };
 var elm$json$Json$Decode$value = _Json_decodeValue;
 var author$project$Main$portIntoElm = _Platform_incomingPort('portIntoElm', elm$json$Json$Decode$value);
 var author$project$Main$subscriptions = function (model) {
-	return author$project$Main$portIntoElm(author$project$Main$NewValueFromJs);
+	return author$project$Main$portIntoElm(author$project$Main$GotValueFromJs);
 };
 var elm$core$Basics$identity = function (x) {
 	return x;
@@ -5365,7 +5365,14 @@ var author$project$Main$update = F2(
 			var _n1 = A2(elm$json$Json$Decode$decodeValue, elm$json$Json$Decode$int, encodedValue);
 			if (_n1.$ === 'Err') {
 				var err = _n1.a;
-				return _Utils_Tuple2(model, elm$core$Platform$Cmd$none);
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							decodeError: elm$core$Maybe$Just(
+								elm$json$Json$Decode$errorToString(err))
+						}),
+					elm$core$Platform$Cmd$none);
 			} else {
 				var decoded = _n1.a;
 				return _Utils_Tuple2(
@@ -5392,10 +5399,24 @@ var elm$virtual_dom$VirtualDom$toHandlerInt = function (handler) {
 			return 3;
 	}
 };
-var elm$html$Html$button = _VirtualDom_node('button');
 var elm$html$Html$div = _VirtualDom_node('div');
 var elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var elm$html$Html$text = elm$virtual_dom$VirtualDom$text;
+var author$project$Main$decodeErrorView = function (maybeDecodeError) {
+	if (maybeDecodeError.$ === 'Nothing') {
+		return A2(elm$html$Html$div, _List_Nil, _List_Nil);
+	} else {
+		var decodeErrorString = maybeDecodeError.a;
+		return A2(
+			elm$html$Html$div,
+			_List_Nil,
+			_List_fromArray(
+				[
+					elm$html$Html$text(decodeErrorString)
+				]));
+	}
+};
+var elm$html$Html$button = _VirtualDom_node('button');
 var elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5436,7 +5457,8 @@ var author$project$Main$view = function (model) {
 					[
 						elm$html$Html$text(
 						elm$core$String$fromInt(model.valueFromJs))
-					]))
+					])),
+				author$project$Main$decodeErrorView(model.decodeError)
 			]));
 };
 var elm$browser$Browser$External = function (a) {
@@ -9681,4 +9703,4 @@ var elm$browser$Browser$element = _Browser_element;
 var author$project$Main$main = elm$browser$Browser$element(
 	{init: author$project$Main$init, subscriptions: author$project$Main$subscriptions, update: author$project$Main$update, view: author$project$Main$view});
 _Platform_export({'Main':{'init':author$project$Main$main(
-	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{},"unions":{"Main.Msg":{"args":[],"tags":{"NewValueFromJs":["Json.Encode.Value"],"SendDataToJs":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
+	elm$json$Json$Decode$succeed(_Utils_Tuple0))({"versions":{"elm":"0.19.0"},"types":{"message":"Main.Msg","aliases":{},"unions":{"Main.Msg":{"args":[],"tags":{"GotValueFromJs":["Json.Encode.Value"],"SendDataToJs":[]}},"Json.Encode.Value":{"args":[],"tags":{"Value":[]}}}}})}});}(this));
