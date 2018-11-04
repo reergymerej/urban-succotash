@@ -34,6 +34,12 @@ structure throughout the code.
 
 type alias Model =
     { valueFromJs : Int
+
+    -- Maybe String because it may _not_ be there.  Instead of trying to convert
+    -- the value to a String, and maybe an empty "" when there's an error (that
+    -- is confusing, right?), just store a Maybe String.  Deal with its presence
+    -- or absence when we want to use it for something (like rendering the
+    -- view).
     , decodeError : Maybe String
     , valueForJs : Int
     }
@@ -63,7 +69,9 @@ our Msg defined as it's part of the signature.  (This returns the same as
 init : () -> ( Model, Cmd Msg )
 init _ =
     ( { valueFromJs = 0
-      , decodeError = Nothing
+
+      -- When it's not there, just use Nothing.
+      , decodeError = Maybe.Nothing
       , valueForJs = 0
       }
     , Cmd.none
@@ -91,8 +99,7 @@ Json.Encode.Value.
 
 In other words, we have a Msg type that is `GotValueFromJs Json.Encode.Value`.
 Incoming ported functions get a Json.Encode.Value that they tack onto a Sub.
-When that Sub is activated, it results in
-`GotValueFromJs Json.Encode.Value` being generated.
+When that Sub is activated, it results in `GotValueFromJs Json.Encode.Value` being generated.
 --}
 
 
@@ -103,52 +110,96 @@ subscriptions model =
 
 
 --------------------------------------------------------------------------------
--- update
+-- update - a function called when an action happens, updates the model and issues a command
+{--
+Here we define a port we use to send values _out_ of Elm.  As in other areas,
+we can't tell the runtime when to do the stuff, we just issue a command.  So
+the ported function will be called with a Json.Encode.Value and return a
+command.
+--}
 
 
 port portOutOfElm : Json.Encode.Value -> Cmd msg
 
 
+
+{--
+When an action happens, `update` is called with a message and the current model.
+This is where we can return a new model and a command.
+--}
+
+
 update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
+        -- If the message ws SendDataToJs
         SendDataToJs ->
+            -- Return a model with a modified `valueForJs` value
             ( { model
                 | valueForJs = model.valueForJs + 1
               }
+              -- and a command (Cmd Msg, courtesy of portOutOfElm) telling the
+              -- runtime to call the ported function.
             , portOutOfElm (Json.Encode.int (model.valueForJs + 1))
             )
 
+        -- We get this from our subscription to portIntoElm.
         GotValueFromJs encodedValue ->
+            -- In `update`, we always need to return `(Model, Cmd Msg)`.
+            -- Decoding JSON can fail, so we need to account for that.
+            -- Here, we _try_ to decode `encodedValue`, which gives us a Result.
             case Json.Decode.decodeValue Json.Decode.int encodedValue of
+                -- If it was an error
                 Err err ->
+                    -- return the model
                     ( { model
+                        -- updated with the error converted to a string.
+                        -- `decodeError` is a `Maybe String`, so we assign it
+                        -- with `Maybe.Just`.
                         | decodeError = Maybe.Just (Json.Decode.errorToString err)
                       }
+                      -- no commands needed
                     , Cmd.none
                     )
 
+                -- If the decode was Ok
                 Ok decoded ->
+                    -- return the model
                     ( { model
+                        -- with the updated value.
                         | valueFromJs = decoded
                       }
+                      -- no commands needed
                     , Cmd.none
                     )
 
 
 
 --------------------------------------------------------------------------------
--- view
+-- view - a function called when the model is updated, returns html to render
+{--
+This deals with our Maybe String.
+If it is Nothing, return nothing.
+If it is Just something, return it as a text node.
+This is basic rendering stuff, but the use of `case` to handle `Maybe` values
+may not be obvious.
+--}
 
 
 decodeErrorView : Maybe String -> Html.Html Msg
 decodeErrorView maybeDecodeError =
     case maybeDecodeError of
-        Nothing ->
+        Maybe.Nothing ->
             Html.div [] []
 
-        Just decodeErrorString ->
+        Maybe.Just decodeErrorString ->
             Html.div [] [ Html.text decodeErrorString ]
+
+
+
+-- This is called when the model has been updated and we need to generate new
+-- Html for the app.  It returns Html.Html Msg, which is basically some html
+-- that can potentially cause a a Msg to be emitted.
 
 
 view : Model -> Html.Html Msg
